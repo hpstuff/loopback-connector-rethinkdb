@@ -457,15 +457,18 @@ RethinkDB.prototype.all = function all(model, filter, options, callback) {
             return callback(error, null);
         }
 
-        _keys = _this._models[model].properties;
-        _model = _this._models[model].model;
-
         cursor.toArray(function (err, data) {
             if (err) {
                 return callback(err);
             }
+            _keys = _this._models[model].properties;
+            _model = _this._models[model].model;
 
             data.forEach(function(element, index) {
+                 if (element["id"]) {
+                    element[idName]= element["id"];
+                    idName !== "id" && delete element["id"];
+                }
                 _expandResult(element, _keys);
             });
 
