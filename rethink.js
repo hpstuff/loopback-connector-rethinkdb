@@ -7,6 +7,7 @@ var util = require("util");
 var Rx = require('rx');
 
 var Connector = require("loopback-connector").Connector;
+var debug = require('debug')('loopback:connector:rethink');
 
 exports.initialize = function initializeDataSource(dataSource, callback) {
     if (!r) return;
@@ -377,6 +378,10 @@ RethinkDB.prototype.find = function find(model, id, options, callback) {
             _expandResult(data, _keys);
         }
 
+        if (debug.enabled) {
+          debug('ReQl: ' + rQuery);
+        }
+
         // Done
         callback && callback(error, data, rQuery);
     });
@@ -498,6 +503,10 @@ RethinkDB.prototype._observe = function (model, filter, options, callback) {
         }
         
         promise.run(client).then(function (res) {
+                if (debug.enabled) {
+                  debug('ReQl: ' + rQuery);
+                }
+
                 feed = res;
                 var isReady = false;
                 feed.eachAsync(function (item) {
@@ -587,6 +596,9 @@ RethinkDB.prototype._all = function _all(model, filter, options, callback) {
     //console.log(rQuery)
 
     promise.run(client, function(error, cursor) {
+        if (debug.enabled) {
+          debug('ReQl: ' + rQuery);
+        }
 
         if (error || !cursor) {
             return callback(error, null);
@@ -666,7 +678,12 @@ RethinkDB.prototype.count = function count(model, where, options, callback) {
     if (promise === null)
         return callback(null, 0)
 
+    var rQuery = promise.toString();
+
     promise.count().run(client, function (err, count) {
+        if (debug.enabled) {
+          debug('ReQl: ' + rQuery);
+        }
         callback(err, count);
     });
 };
